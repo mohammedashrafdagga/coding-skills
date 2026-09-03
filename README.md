@@ -1,6 +1,6 @@
-# Software Security Baseline
+# Private Agent Skills
 
-A private, reusable Agent Skill for checking the minimum practical security controls in small-business software. It reviews application evidence, identifies release blockers, and creates sequential Markdown reports under the reviewed application's `security/` directory when issues need attention.
+A private collection of reusable Agent Skills for software work. Each skill lives in its own top-level directory, so more skills can be added without changing the repository's installation model.
 
 ## Supported agents
 
@@ -10,43 +10,55 @@ This repository officially supports only:
 - Claude Code
 - Cursor
 
-The `skills` CLI supports many agents, but this skill is maintained and tested only for these three. Always use the explicit agent flags below; do not use `--all` or `--agent '*'`.
+The `skills` CLI supports many agents, but this collection is maintained and tested only for these three. Always use the explicit agent flags below; do not use `--all` or `--agent '*'`.
+
+## Available skills
+
+| Skill | Purpose |
+| --- | --- |
+| `software-security-baseline` | Reviews minimum practical security controls for small-business applications and tracks actionable issues in numbered Markdown reports. |
 
 ## Install from the private repository
 
 The machine must have access to the private GitHub repository through Git credentials, GitHub CLI authentication, or SSH.
 
-From the root of an application project, install the skill for all three supported agents:
+First, list the available skills:
 
 ```bash
-npx skills add mohammedashrafdagga/software-security-baseline --skill software-security-baseline --agent codex --agent claude-code --agent cursor
+npx skills add mohammedashrafdagga/private-agent-skills --list
 ```
 
-This uses project scope by default. To make the skill available across all projects, add `--global`:
+Install one skill into the current application project:
 
 ```bash
-npx skills add mohammedashrafdagga/software-security-baseline --skill software-security-baseline --agent codex --agent claude-code --agent cursor --global
+npx skills add mohammedashrafdagga/private-agent-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor
+```
+
+Install every current and future skill from the collection:
+
+```bash
+npx skills add mohammedashrafdagga/private-agent-skills --skill '*' --agent codex --agent claude-code --agent cursor
+```
+
+Project scope is the default. Add `--global` to any install command to make the selected skills available across projects:
+
+```bash
+npx skills add mohammedashrafdagga/private-agent-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor --global
 ```
 
 If GitHub shorthand authentication does not work, use the SSH repository URL:
 
 ```bash
-npx skills add git@github.com:mohammedashrafdagga/software-security-baseline.git --skill software-security-baseline --agent codex --agent claude-code --agent cursor
+npx skills add git@github.com:mohammedashrafdagga/private-agent-skills.git --skill software-security-baseline --agent codex --agent claude-code --agent cursor
 ```
 
-To inspect the repository before installing:
+To update installed skills:
 
 ```bash
-npx skills add mohammedashrafdagga/software-security-baseline --list
+npx skills update
 ```
 
-To update an installed copy:
-
-```bash
-npx skills update software-security-baseline
-```
-
-## Use
+## Use the security skill
 
 Ask the agent to use `software-security-baseline` and review the current application. For example:
 
@@ -65,18 +77,28 @@ The skill will:
 
 Security reports can contain sensitive architectural and vulnerability information. Keep the application repository and its reports access-controlled, and never place live secrets in a report.
 
-## Repository layout
+## Add future skills
+
+Add each new skill as a sibling directory at the repository root. The directory name must match the `name` in its `SKILL.md` frontmatter.
 
 ```text
-software-security-baseline/
+private-agent-skills/
 ├── README.md
-└── software-security-baseline/
-    ├── SKILL.md
-    ├── agents/
-    │   └── openai.yaml
-    └── references/
-        ├── minimum-baseline.md
-        └── report-format.md
+├── software-security-baseline/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── references/
+│       ├── minimum-baseline.md
+│       └── report-format.md
+└── future-skill/
+    └── SKILL.md
 ```
 
-The skill follows the Agent Skills `SKILL.md` format. `agents/openai.yaml` adds Codex-specific interface metadata and is optional for Claude Code and Cursor.
+After adding a skill, validate it and confirm repository discovery with:
+
+```bash
+npx skills add . --list
+```
+
+The collection follows the Agent Skills `SKILL.md` format. Files under a skill's `agents/` directory may provide agent-specific metadata and can be ignored by agents that do not use them.
