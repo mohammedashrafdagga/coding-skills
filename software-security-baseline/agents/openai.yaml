@@ -1,0 +1,4 @@
+interface:
+  display_name: "Software Security Baseline"
+  short_description: "Check essential safeguards before software release"
+  default_prompt: "Use $software-security-baseline to review this application and track any security issues in a numbered report."

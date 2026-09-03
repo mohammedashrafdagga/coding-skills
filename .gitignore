@@ -1,0 +1,13 @@
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+
+.env
+.env.*
+!.env.example
+
+*.key
+*.pem
+*.p12
+*.pfx
