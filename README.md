@@ -1,4 +1,4 @@
-# Private Agent Skills
+# Coding Skills
 
 A private collection of reusable Agent Skills for software work. Each skill lives in its own top-level directory, so more skills can be added without changing the repository's installation model.
 
@@ -25,31 +25,31 @@ The machine must have access to the private GitHub repository through Git creden
 First, list the available skills:
 
 ```bash
-npx skills add mohammedashrafdagga/private-agent-skills --list
+npx skills add mohammedashrafdagga/coding-skills --list
 ```
 
 Install one skill into the current application project:
 
 ```bash
-npx skills add mohammedashrafdagga/private-agent-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor
+npx skills add mohammedashrafdagga/coding-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor
 ```
 
 Install every current and future skill from the collection:
 
 ```bash
-npx skills add mohammedashrafdagga/private-agent-skills --skill '*' --agent codex --agent claude-code --agent cursor
+npx skills add mohammedashrafdagga/coding-skills --skill '*' --agent codex --agent claude-code --agent cursor
 ```
 
 Project scope is the default. Add `--global` to any install command to make the selected skills available across projects:
 
 ```bash
-npx skills add mohammedashrafdagga/private-agent-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor --global
+npx skills add mohammedashrafdagga/coding-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor --global
 ```
 
 If GitHub shorthand authentication does not work, use the SSH repository URL:
 
 ```bash
-npx skills add git@github.com:mohammedashrafdagga/private-agent-skills.git --skill software-security-baseline --agent codex --agent claude-code --agent cursor
+npx skills add git@github.com:mohammedashrafdagga/coding-skills.git --skill software-security-baseline --agent codex --agent claude-code --agent cursor
 ```
 
 To update installed skills:
@@ -82,7 +82,7 @@ Security reports can contain sensitive architectural and vulnerability informati
 Add each new skill as a sibling directory at the repository root. The directory name must match the `name` in its `SKILL.md` frontmatter.
 
 ```text
-private-agent-skills/
+coding-skills/
 ├── README.md
 ├── software-security-baseline/
 │   ├── SKILL.md
