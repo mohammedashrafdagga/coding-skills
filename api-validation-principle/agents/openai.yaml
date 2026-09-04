@@ -1,0 +1,4 @@
+interface:
+  display_name: "API Validation Principle"
+  short_description: "Audit all API endpoints and write a report each run"
+  default_prompt: "Use $api-validation-principle to validate every API endpoint in this system and create a new report under docs/api_report."
