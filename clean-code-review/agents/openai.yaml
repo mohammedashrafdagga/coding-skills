@@ -1,0 +1,4 @@
+interface:
+  display_name: "Clean Code Review"
+  short_description: "Audit full-stack code quality and architecture"
+  default_prompt: "Use $clean-code-review to review this codebase and create a prioritized clean-code report."

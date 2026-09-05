@@ -17,6 +17,7 @@ The `skills` CLI supports many agents, but this collection is maintained and tes
 | Skill | Purpose |
 | --- | --- |
 | `software-security-baseline` | Reviews minimum practical security controls for small-business applications and tracks actionable issues in numbered Markdown reports. |
+| `clean-code-review` | Reviews frontend and backend code quality, design principles, and architecture conformance, then creates a prioritized numbered report. |
 
 ## Install from the private repository
 
@@ -77,6 +78,16 @@ The skill will:
 
 Security reports can contain sensitive architectural and vulnerability information. Keep the application repository and its reports access-controlled, and never place live secrets in a report.
 
+## Use the clean-code skill
+
+Ask the agent to use `clean-code-review` for a repository-wide quality and architecture assessment. For example:
+
+```text
+Use clean-code-review to assess the frontend and backend, including DDD and feature boundaries.
+```
+
+Every run creates the next `docs/clean-code-report/report_NNN.md` with coverage, evidence-backed findings, stable issue IDs, and a dependency-aware remediation plan. Reviewing does not modify application code unless the user explicitly asks for fixes.
+
 ## Add future skills
 
 Add each new skill as a sibling directory at the repository root. The directory name must match the `name` in its `SKILL.md` frontmatter.
@@ -84,6 +95,13 @@ Add each new skill as a sibling directory at the repository root. The directory 
 ```text
 coding-skills/
 ├── README.md
+├── clean-code-review/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── references/
+│       ├── quality-baseline.md
+│       └── report-format.md
 ├── software-security-baseline/
 │   ├── SKILL.md
 │   ├── agents/
