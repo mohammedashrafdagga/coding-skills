@@ -18,6 +18,7 @@ The `skills` CLI supports many agents, but this collection is maintained and tes
 | --- | --- |
 | `software-security-baseline` | Reviews minimum practical security controls for small-business applications and tracks actionable issues in numbered Markdown reports. |
 | `api-validation-principle` | Audits all API endpoints against design, validation, security, and reliability principles and creates a complete report under `docs/api_report/` on every run. |
+| `clean-code-review` | Reviews frontend and backend code quality, design principles, and architecture conformance, then creates a prioritized numbered report. |
 
 ## Install from the private repository
 
@@ -96,6 +97,22 @@ The skill inventories all services and operations in scope, checks each operatio
 
 A system passes only when inventory coverage is complete and every applicable check passes. Unverified endpoints remain visible in the report. To remediate findings, explicitly ask the agent to fix them and revalidate; an audit by itself changes only the reports.
 
+## Use the clean-code skill
+
+Install it into the application project:
+
+```bash
+npx skills add mohammedashrafdagga/coding-skills --skill clean-code-review --agent codex --agent claude-code --agent cursor
+```
+
+Ask the agent to use `clean-code-review` for a repository-wide quality and architecture assessment. For example:
+
+```text
+Use clean-code-review to assess the frontend and backend, including DDD and feature boundaries.
+```
+
+Every run creates the next `docs/clean-code-report/report_NNN.md` with coverage, evidence-backed findings, stable issue IDs, and a dependency-aware remediation plan. Reviewing does not modify application code unless the user explicitly asks for fixes.
+
 ## Add future skills
 
 Add each new skill as a sibling directory at the repository root. The directory name must match the `name` in its `SKILL.md` frontmatter.
@@ -109,6 +126,13 @@ coding-skills/
 │   │   └── openai.yaml
 │   └── references/
 │       ├── api-baseline.md
+│       └── report-format.md
+├── clean-code-review/
+│   ├── SKILL.md
+│   ├── agents/
+│   │   └── openai.yaml
+│   └── references/
+│       ├── quality-baseline.md
 │       └── report-format.md
 ├── software-security-baseline/
 │   ├── SKILL.md
