@@ -99,6 +99,12 @@ A system passes only when inventory coverage is complete and every applicable ch
 
 ## Use the clean-code skill
 
+Install it into the application project:
+
+```bash
+npx skills add mohammedashrafdagga/coding-skills --skill clean-code-review --agent codex --agent claude-code --agent cursor
+```
+
 Ask the agent to use `clean-code-review` for a repository-wide quality and architecture assessment. For example:
 
 ```text
