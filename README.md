@@ -1,6 +1,6 @@
 # Coding Skills
 
-A private collection of reusable Agent Skills for software work. Each skill lives in its own top-level directory, so more skills can be added without changing the repository's installation model.
+A public collection of reusable Agent Skills for software work. It is designed to be shared, installed, and improved by other developers. Each skill lives in its own top-level directory, so more skills can be added without changing the repository's installation model.
 
 ## Supported agents
 
@@ -16,13 +16,13 @@ The `skills` CLI supports many agents, but this collection is maintained and tes
 
 | Skill | Purpose |
 | --- | --- |
-| `software-security-baseline` | Reviews minimum practical security controls for small-business applications and tracks actionable issues in numbered Markdown reports. |
-| `api-validation-principle` | Audits all API endpoints against design, validation, security, and reliability principles and creates a complete report under `docs/api_report/` on every run. |
-| `clean-code-review` | Reviews frontend and backend code quality, design principles, and architecture conformance, then creates a prioritized numbered report. |
+| `software-security-baseline` | Reviews minimum practical security controls, then checks only changed and affected security surfaces on later branches or revisions. |
+| `api-validation-principle` | Establishes a full API baseline, then validates changed and affected operations with concise issue-focused reports. |
+| `clean-code-review` | Establishes a code-quality baseline, then reviews changed and affected features for maintainability and architecture issues. |
 
-## Install from the private repository
+## Install from the public repository
 
-The machine must have access to the private GitHub repository through Git credentials, GitHub CLI authentication, or SSH.
+The repository is public, so no GitHub authentication is required to list or install its skills.
 
 First, list the available skills:
 
@@ -48,12 +48,6 @@ Project scope is the default. Add `--global` to any install command to make the 
 npx skills add mohammedashrafdagga/coding-skills --skill software-security-baseline --agent codex --agent claude-code --agent cursor --global
 ```
 
-If GitHub shorthand authentication does not work, use the SSH repository URL:
-
-```bash
-npx skills add git@github.com:mohammedashrafdagga/coding-skills.git --skill software-security-baseline --agent codex --agent claude-code --agent cursor
-```
-
 To update installed skills:
 
 ```bash
@@ -72,10 +66,10 @@ The skill will:
 
 1. determine the application and review scope;
 2. ensure the application has a `security/` directory;
-3. inspect earlier numbered security reports;
-4. assess core and applicable conditional controls;
-5. create the next `security/report_NNN.md` only when a control fails or still needs verification;
-6. avoid creating a report when the review is clean.
+3. inspect earlier numbered security reports and their Git checkpoints;
+4. run a full first review, then assess only changed and transitively affected security surfaces on comparable later revisions;
+5. create the next concise `security/report_NNN.md`, recording the current branch and reviewed revision;
+6. keep issue detail in the report while summarizing clean coverage by feature or trust boundary.
 
 Security reports can contain sensitive architectural and vulnerability information. Keep the application repository and its reports access-controlled, and never place live secrets in a report.
 
@@ -93,7 +87,9 @@ Ask the agent:
 Use api-validation-principle to review every API endpoint across this system and create an API report.
 ```
 
-The skill inventories all services and operations in scope, checks each operation against the API baseline, and records evidence, issues, and missing verification. It creates the next `docs/api_report/report_NNN.md` in the reviewed project on every run, including clean runs, starting at `report_001.md` and preserving earlier reports. It creates the directory when needed. It also reports when no APIs are found or a review cannot be completed.
+The first comparable run inventories all services and operations in scope. Later runs use the recorded Git branch and revision to validate only added, changed, removed, and transitively affected API behavior, including changes made on child branches. Each run creates the next `docs/api_report/report_NNN.md`, starting at `report_001.md` and preserving earlier reports.
+
+Reports summarize passing coverage by feature or API surface. They keep endpoint-level detail for issues and evidence gaps, and link to earlier reports for unresolved findings that were not touched by the current change set.
 
 A system passes only when inventory coverage is complete and every applicable check passes. Unverified endpoints remain visible in the report. To remediate findings, explicitly ask the agent to fix them and revalidate; an audit by itself changes only the reports.
 
@@ -111,7 +107,9 @@ Ask the agent to use `clean-code-review` for a repository-wide quality and archi
 Use clean-code-review to assess the frontend and backend, including DDD and feature boundaries.
 ```
 
-Every run creates the next `docs/clean-code-report/report_NNN.md` with coverage, evidence-backed findings, stable issue IDs, and a dependency-aware remediation plan. Reviewing does not modify application code unless the user explicitly asks for fixes.
+The first comparable run establishes full-project coverage. Later runs use the prior report's Git checkpoint to review changed code and its affected features, dependencies, and boundaries. Every run creates the next concise `docs/clean-code-report/report_NNN.md` with grouped coverage, evidence-backed issues, and links to unchanged earlier findings. Reviewing does not modify application code unless the user explicitly asks for fixes.
+
+All three skills fall back to a full review when history has diverged without a trustworthy reviewed base, the previous checkpoint is unavailable, or broad structural changes invalidate the earlier baseline.
 
 ## Add future skills
 
