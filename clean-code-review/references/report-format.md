@@ -1,109 +1,86 @@
 # Clean-Code Review Report Format
 
-Create a new self-contained report on every review. A developer should be able to prioritize, implement, and verify the work without relying on the conversation.
+Create a concise checkpoint report on every review. Report clean coverage by feature, package, or layer; reserve detailed prose for actionable issues and evidence gaps. Link to earlier reports rather than duplicating unchanged findings.
 
-## Tracking rules
+## Checkpoint and tracking rules
 
-- Read earlier numbered reports before assigning finding IDs.
-- Assign new root causes the next unused stable ID: `CCR-001`, `CCR-002`, and so on.
-- Reuse an ID only when the same root cause remains or recurs. Never reuse an ID for an unrelated problem.
-- Include all current `Open` and `Needs verification` items, not only findings discovered in this run.
-- List an earlier issue as resolved only when current evidence proves the root cause is gone. A rename, partial cleanup, or accepted debt is not resolution.
-- Never edit an older report to make history appear current.
+- Record `Review mode` (`Full` or `Incremental`), current branch, base checkpoint, reviewed `HEAD`, and included staged, unstaged, and untracked changes.
+- A comparable report covers the same project and materially equivalent architecture scope. A reviewed commit on a parent branch is a valid incremental base when it is an ancestor of the current `HEAD`.
+- Assign new root causes the next unused stable ID: `CCR-001`, `CCR-002`, and so on. Reuse an ID only for the same root cause.
+- Fully describe findings only when they are new, changed, or reverified. Carry untouched unresolved issues in a compact table with a link to the last detailed report.
+- Never infer resolution from absence in the current diff or edit older reports to make history appear current.
 
 ## Required structure
 
 ```markdown
 # Clean-Code Review — Report NNN
 
-- Date: YYYY-MM-DD
+- Date: <YYYY-MM-DD>
 - Project: <name and reviewed root>
-- Revision: <commit or working-tree state>
-- Review scope: <applications, services, packages, and layers>
+- Review mode: <Full / Incremental>
+- Branch: <branch name, or detached HEAD>
+- Base checkpoint: <prior report and commit, merge base, or None>
+- Reviewed revision: <HEAD commit plus staged/unstaged/untracked state>
+- Review scope: <whole project for Full; changed and transitively affected features/packages/layers for Incremental>
 - Architecture expectation: <documented architecture and evidence source>
-- Compared with: <latest prior report or None>
-- Outcome: Meets clean-code baseline | Does not meet clean-code baseline | Not ready to approve
+- Outcome: <Meets clean-code baseline / Does not meet clean-code baseline / Not ready to approve>
+- Outcome scope: <full reviewed project, or reviewed change set plus inherited issues>
 
 ## Executive summary
 
-<Most important conclusion, issue counts by severity/status, and material limitations.>
+<Most important conclusion, new/changed issue counts by severity, inherited-open count, and material limitations.>
+
+## Change and coverage summary
+
+| Feature / package / layer | Change kind | Affected behavior reviewed | Result | Evidence or gap |
+| --- | --- | --- | --- | --- |
+| <cohesive surface> | <Added / Changed / Removed / Full baseline> | <concise scope> | <Pass / Fail / Not verified> | <paths, tests, or gap> |
+
+<Group clean results. Do not create a row per file, class, function, or baseline principle.>
 
 ## Current findings
 
 ### CCR-001 — <specific root-cause title>
 
-- Status: Open | Needs verification | Accepted debt
-- Severity: Critical | High | Medium | Low
+- Status: <Open / Needs verification / Accepted debt>
+- Severity: <Critical / High / Medium / Low>
 - Principle: <baseline area and project rule>
 - Affected surfaces: <features, modules, layers, or packages>
-- Evidence: `<path:line>` plus concise observation
+- Evidence: <repository-relative path:line plus concise observation>
 - Impact: <credible correctness, change-cost, testability, or maintenance consequence>
 - Root cause: <why the issue exists across the affected surfaces>
 - Remediation: <smallest durable change and important sequencing>
 - Verification: <test, static rule, review, or measurable observation>
-- Owner: <team/person or Unassigned>
-- Target: <milestone/date or Unscheduled>
+- Owner / target: <known values or Unassigned / Unscheduled>
 - Acceptance: <owner, rationale, guardrails, and revisit date; omit unless accepted>
 
-## Resolved since previous report
+## Inherited unresolved findings
 
-<Finding ID, resolution, and current verification evidence; or None.>
-
-## Baseline coverage
-
-| Area | State | Reviewed surfaces | Evidence or gap |
-| --- | --- | --- | --- |
-| Architecture conformance and boundaries | Pass / Fail / Not verified / Not applicable | <scope> | <evidence> |
-| Separation of concerns and cohesion | ... | ... | ... |
-| DRY and duplication | ... | ... | ... |
-| SOLID and dependency design | ... | ... | ... |
-| Simplicity: KISS and YAGNI | ... | ... | ... |
-| Readability and local design | ... | ... | ... |
-| Domain rules, data, and type integrity | ... | ... | ... |
-| Errors, resources, and asynchronous behavior | ... | ... | ... |
-| Testability and test design | ... | ... | ... |
-| Change safety and repository hygiene | ... | ... | ... |
-| Frontend quality | ... | ... | ... |
-| Backend quality | ... | ... | ... |
-| DDD and feature separation | ... | ... | ... |
-
-## Review ledger
-
-| Surface | Kind | Review depth | Result | Notes |
+| ID | Status | Title | Affected feature / surface | Detailed in |
 | --- | --- | --- | --- | --- |
-| <application/package/feature/layer> | Frontend / Backend / Shared / Tooling | Complete / Targeted / Not reviewed | Pass / Fail / Not verified | <evidence or gap> |
+| <ID> | <status> | <title> | <surface> | <relative link to prior report> |
 
-## Remediation plan
+## Resolved or reverified
 
-### Fix first
+<Finding ID and current verification evidence, or None.>
 
-<Ordered Critical and High items and prerequisites, or None.>
+## Prioritized next actions
 
-### Fix next
-
-<Ordered material maintainability work, or None.>
-
-### Consider later
-
-<Low-priority findings and clearly labeled optional improvements, or None.>
+<`Fix first`, `Fix next`, and optional `Consider later` items by finding ID; or None.>
 
 ## Verification record
 
 - Checks run: <commands, static reviews, and results>
 - Checks not run: <check, reason, and how to run it>
-- Assumptions: <material assumptions>
-- Exclusions: <generated/vendor code and explicit scope exclusions>
-- Coverage gaps: <unreviewed or insufficiently verified surfaces>
-- Residual risk: <what the review cannot establish>
+- Assumptions and exclusions: <material items>
+- Residual risk: <including untouched scope in an incremental review>
 ```
 
 ## Content requirements
 
-- Use repository-relative evidence paths so reports remain portable.
-- Cite exact lines for findings whenever the format supports stable line references. Include all known locations for a duplicated rule or boundary violation.
-- Separate confirmed failures from evidence gaps: use `Open` for a demonstrated violation and `Needs verification` when evidence is insufficient.
-- Explain architecture findings in terms of the project's actual dependency or ownership rule.
-- Make remediation specific and testable. “Follow SOLID,” “remove duplication,” or “clean this file” is insufficient.
-- Prefer one root-cause finding over many symptom-level findings, while preserving the affected-surface list.
-- Put non-blocking suggestions with no baseline failure under `Consider later`; do not inflate issue counts with taste-based recommendations.
-- A clean report still includes the full coverage and review-ledger tables, verification record, and `None` for findings and remediation sections.
+- Use repository-relative evidence paths and exact lines for findings when stable line references are available.
+- Maintain a working checklist across all applicable baseline areas for the active scope, but do not paste a complete passing matrix into the report.
+- Expand incremental review through dependencies and shared abstractions; a small diff can affect several features.
+- Separate confirmed failures from evidence gaps. Consolidate repeated symptoms with one root cause while preserving known affected surfaces.
+- An untouched finding remains open and affects the project outcome. Its previous detailed report is the source of truth until it is reverified.
+- A clean run should be short: checkpoint metadata, grouped reviewed scope, verification, inherited issues if any, and no artificial findings.

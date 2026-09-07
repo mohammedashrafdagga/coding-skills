@@ -1,100 +1,89 @@
 # API Report Format
 
-Every run produces a self-contained snapshot of all discovered operations in scope, including clean runs and incomplete reviews. Keep older reports unchanged. Use repository-relative evidence paths and links so reports remain portable.
+Every run produces a concise checkpoint report. The review itself must cover every operation in the active scope, but the report groups clean results by feature and gives operation-level detail only for actionable findings or evidence gaps. Keep older reports unchanged and link to them instead of copying their issue text.
 
-## Identity and history
+## Checkpoint and history
 
-- Use the stable operation key from the skill (service + method/operation + effective route, disambiguated by host/version when needed). Display each HTTP method separately. For GraphQL/RPC/message APIs, display each enumerated operation separately.
-- Assign findings stable IDs `API-001`, `API-002`, and so on, using the next unused integer from all previous reports. Reuse the ID for the same root cause, including recurrence; unrelated findings get new IDs.
-- Include every current unresolved issue and evidence gap, even if already reported. Consolidate a shared root cause but list every affected endpoint key.
-- Track findings as `Open`, `Needs verification`, `Resolved`, or `Risk accepted`. Mark resolution only with evidence; lack of reinspection is not resolution. Accepted risks retain the underlying failed/unverified principle state.
-- List new, removed, and changed operations since the last comparable scope. Removal needs route/configuration evidence; absence from a search alone is inconclusive. If scopes differ, explain the limits of comparison and do not imply excluded endpoints were removed or findings fixed.
+- Record `Review mode` (`Full` or `Incremental`), the current branch, base checkpoint, reviewed `HEAD`, and whether staged, unstaged, or untracked changes were included.
+- A comparable prior report targets the same project and materially equivalent API scope. Prefer the newest recorded commit that is an ancestor of `HEAD`; parent-branch checkpoints are valid.
+- Assign findings stable IDs `API-001`, `API-002`, and so on. Reuse an ID for the same root cause, including recurrence; unrelated findings get new IDs.
+- Fully describe only findings that are new, changed, or reverified in this run. Carry untouched unresolved findings as a compact row containing ID, status, title, affected feature, and prior-report link.
+- List added, changed, moved, and removed operations since the base. Group them by feature or API surface; name individual operation keys only when needed to identify a finding or explain scope.
 
 ## Required report structure
 
-Populate the following structure. Never leave template placeholders in a saved report. For empty sections write `None` with an explanation where relevant.
+Never leave template placeholders in a saved report. For empty sections write `None` with a useful explanation.
 
 ```markdown
 # API Validation — Report NNN
 
 - Reviewed at: <ISO 8601 timestamp with timezone>
 - Project: <name and root>
-- Revision: <commit/branch if available, and whether working tree changes were reviewed>
-- Scope: <all services or explicitly scoped subset, protocols, environments/configurations>
-- Compared with: <previous report link or None; note any scope differences>
+- Review mode: <Full / Incremental>
+- Branch: <branch name, or detached HEAD>
+- Base checkpoint: <prior report and commit, merge base, or None for first full review>
+- Reviewed revision: <HEAD commit plus staged/unstaged/untracked state>
+- Scope: <full API or changed features/surfaces and affected shared behavior>
 - Outcome: <Meets API baseline / Does not meet API baseline / Not ready to approve / No API endpoints found>
-- Inventory completeness: <Complete / Incomplete, with evidence or gaps>
+- Outcome scope: <whole reviewed API for Full; reviewed change set plus inherited issues for Incremental>
 
 ## Summary
 
-- Discovered operations: <N>
-- Endpoint results: <P Pass, F Fail, U Not verified; P + F + U = N>
-- Findings: <confirmed counts by severity, evidence-gap count separately>
-- Principal blockers: <finding IDs and concise impacts, or None>
+- Reviewed operations: <N in the active scope>
+- Results: <P Pass, F Fail, U Not verified; P + F + U = N>
+- New or changed findings: <counts by severity; evidence gaps separately>
+- Inherited open findings: <count>
+- Principal blockers: <IDs and concise impact, or None>
 
-## Discovery and scope evidence
+## Change and coverage summary
 
-| Service / surface | Discovery sources | Reconciliation / coverage gaps |
-| --- | --- | --- |
-| <service, host, protocol> | <routes, schemas, gateway config, runtime listing when available> | <agreement, undocumented/documented-only operations, unavailable sources> |
+| Feature / API surface | Added | Changed | Removed | Affected operations reviewed | Result | Evidence or gap |
+| --- | ---: | ---: | ---: | ---: | --- | --- |
+| <feature or shared control> | <N> | <N> | <N> | <N> | <Pass / Fail / Not verified> | <concise paths/tests or gap> |
 
-<Assumptions, configuration-dependent registrations, exclusions and unavailable services. Explain how inventory completeness was established.>
-
-## Full endpoint inventory
-
-| Endpoint key | Purpose / exposure | Handler and contract evidence | Overall state | Finding IDs |
-| --- | --- | --- | --- | --- |
-| <service METHOD /effective/path> | <purpose; public/protected/internal/admin> | <path:line; contract reference or gap> | <Pass / Fail / Not verified> | <IDs or None> |
-
-## Per-endpoint principle results
-
-| Endpoint key | P01 | P02 | P03 | P04 | P05 | P06 | P07 | P08 | P09 |
-| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| <same key as inventory> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> | <state; evidence ID> |
-
-<Use Pass, Fail, Not verified, or Not applicable. Include reasons for Not applicable and evidence/gap details below. Split into service tables if needed; retain every row.>
-
-## Evidence and system-level checks
-
-| Evidence ID / principle | Affected endpoint keys | Evidence and verification type | Result / gap / applicability reason |
-| --- | --- | --- | --- |
-| <E001 / P03> | <explicit keys> | <path:line; static trace or executed test name> | <observation, result, or missing evidence> |
-
-<Record any system-level findings such as incomplete inventory or contract-only operations here as well as in current issues; they must affect the overall decision even when no implemented endpoint can be assigned.>
+<For a Full review, use the same table with operation counts and `—` for change columns. Do not add a row for every passing endpoint.>
 
 ## Current issues
 
 ### API-001 — <specific defect or evidence gap>
 
 - Status: <Open / Needs verification / Risk accepted>
-- Severity: <Critical / High / Medium / Low; for unconfirmed gaps use Not assessed unless potential impact can be justified>
+- Severity: <Critical / High / Medium / Low; use Not assessed for an unqualified evidence gap>
 - Principle: <P01–P09>
-- Affected endpoints: <all known stable keys, or system-level scope>
-- Evidence: <repository-relative path:line and observed behavior; redacted local reproduction if available>
+- Affected operations: <all known stable operation keys>
+- Evidence: <repository-relative path:line and observed behavior>
 - Expected versus observed: <specific requirement and deviation, or evidence needed>
-- Impact: <credible client, security, reliability, or data-integrity consequence; qualify unconfirmed risks>
+- Impact: <credible consequence; qualify unconfirmed risk>
 - Remediation: <concrete action>
 - Verification: <test or evidence that proves resolution>
 - Owner / target: <known values or Unassigned / Unscheduled>
-- Risk acceptance: <only if already accepted; owner, rationale, scope, expiry>
+- Risk acceptance: <only when already accepted; owner, rationale, scope, expiry>
 
-## Changes since previous report
+## Inherited unresolved issues
 
-- Added / changed / removed operations: <keys and evidence, or None>
-- Resolved findings: <IDs and verification evidence, or None>
-- Still open / recurring / not reverified: <IDs and current status, or None>
+| ID | Status | Title | Affected feature / surface | Detailed in |
+| --- | --- | --- | --- | --- |
+| <ID> | <status> | <title> | <feature> | <relative link to prior report> |
+
+## Resolved or reverified
+
+<IDs and current verification evidence, or None.>
 
 ## Verification record
 
-| Check / command | Environment and scope | Result | Limitations |
+| Check / command | Environment and active scope | Result | Limitations |
 | --- | --- | --- | --- |
-| <actual test command or static review> | <local fixtures, services and operations> | <passed / failed / not run; relevant counts> | <missing credentials, runtime, external dependency, or None> |
+| <actual test or static trace> | <features and operations> | <passed / failed / not run> | <limitations or None> |
 
-## Next actions
+## Residual risk and next actions
 
-<Prioritized confirmed fixes and evidence-gathering tasks, with finding IDs. For a clean run state that no baseline remediation was identified within the reviewed scope. Separate optional recommendations from required fixes.>
+<Prioritized issue IDs, checks still needed, assumptions, exclusions, and the limits of an incremental review.>
 ```
 
-## Final consistency check
+## Consistency rules
 
-Confirm inventory and matrix have the same endpoint keys, every principle cell has supporting evidence or a gap/reason, totals reconcile, and shared evidence actually applies to every linked route. Endpoint success totals cannot override failed system-level checks. If no operations were found, include zero totals and discovery evidence; do not manufacture endpoint rows. If discovery or testing is partial, preserve that limitation in the summary and outcome.
+- Keep a private working ledger while reviewing so every operation in the active scope receives every applicable principle check. Do not paste the per-operation matrix into the report.
+- Reconcile reviewed-operation totals with feature rows and affected operations in findings.
+- A shared-control finding must identify every known affected operation, even when clean coverage is otherwise summarized.
+- In an incremental report, untouched inherited findings remain part of the project-level outcome. Do not mark them resolved through absence from the diff.
+- If no operations changed, record a zero-operation incremental checkpoint and any inherited blockers; do not rerun or reproduce the full inventory.
