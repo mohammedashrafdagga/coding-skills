@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangGraph Workflows"
+  short_description: "Build stateful multi-step and multi-agent graphs"
+  default_prompt: "Use $langgraph-workflows to design and implement this workflow as a LangGraph StateGraph with explicit state, routing, persistence, human approval points, and tests."

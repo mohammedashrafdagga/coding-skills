@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangChain Agents"
+  short_description: "Build Python agents with LangChain v1"
+  default_prompt: "Use $langchain-agents to add a LangChain agent to this project with the configured model provider, tools, structured output, memory, and streaming, then add tests that use a fake chat model."

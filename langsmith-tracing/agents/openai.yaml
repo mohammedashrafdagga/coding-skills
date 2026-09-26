@@ -1,0 +1,4 @@
+interface:
+  display_name: "LangSmith Tracing"
+  short_description: "Trace LangChain and LangGraph apps safely"
+  default_prompt: "Use $langsmith-tracing to enable LangSmith tracing for this application with per-environment projects, run names, tags, metadata, threads, masking of sensitive data, and flushing where needed."
