@@ -36,6 +36,8 @@ from langchain_ollama import ChatOllama
 llm = ChatOllama(model="llama3.1:8b", metadata={"ls_provider": "ollama", "ls_model_name": "llama3.1-8b-onprem"})
 ```
 
+`ChatOpenRouter` reports `model_provider="openrouter"` and the routed slug (for example `anthropic/claude-sonnet-4.5`). LangSmith may not price slugs it does not recognize; add model prices for the slugs you use or rely on OpenRouter's own billing. OpenRouter's `session_id` and `trace` parameters feed OpenRouter's broadcast feature and are independent of LangSmith; for LangSmith, keep passing `thread_id` and metadata through the run config.
+
 Add model prices for custom `ls_model_name` values in the LangSmith model price map.
 
 ## Trace selectively

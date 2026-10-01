@@ -40,7 +40,7 @@ for chunk in agent.stream(
 ```
 
 - To show the final answer only, filter `messages` chunks from the `model` node that contain text and no `tool_call_chunks`.
-- Reasoning/thinking tokens: iterate `token.content_blocks` and handle `block["type"] == "reasoning"`. Reasoning must be enabled on the model (Anthropic `thinking=...`, OpenAI `reasoning={...}`, Ollama `reasoning=True`).
+- Reasoning/thinking tokens: iterate `token.content_blocks` and handle `block["type"] == "reasoning"`. Reasoning must be enabled on the model (Anthropic `thinking=...`, OpenAI `reasoning={...}`, Ollama `reasoning=True`, OpenRouter `reasoning={"effort": ...}`).
 - Tool-call arguments stream as `tool_call_chunk` blocks. Use the `updates` mode to get the completed `tool_calls`.
 - Emit progress from a tool with `runtime.stream_writer({"step": "fetched", "count": 10})` (or `langgraph.config.get_stream_writer()`). A tool that uses `get_stream_writer()` can only run inside a graph.
 - When an agent is used inside a parent graph, pass `subgraphs=True` to see its tokens. `chunk["ns"]` identifies the nested graph.
@@ -151,6 +151,7 @@ Provider notes:
 - **OpenAI / Azure (Chat Completions)**: set `stream_usage=True` to receive usage while streaming. It defaults to off when a custom `OPENAI_BASE_URL` is set.
 - **Anthropic**: usage is streamed by default. Cache reads and writes are reported in `input_token_details`.
 - **DeepSeek**: reports token usage.
+- **OpenRouter**: reports usage, including reasoning tokens and (with `cache_control` blocks) cache reads/writes. When streaming, read it from the aggregated output. Cost depends on the upstream provider OpenRouter routed to; reconcile with OpenRouter's dashboard rather than a fixed price table.
 - **Ollama**: token usage is not reported by the integration. Estimate it or measure it elsewhere if needed.
 
 For cost in currency, dashboards, and per-user or per-thread breakdowns, enable LangSmith tracing (see the `langsmith-tracing` skill). It computes cost from these token counts automatically for LangChain models. Add `thread_id` and user metadata to runs so costs can be grouped.

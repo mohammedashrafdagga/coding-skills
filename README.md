@@ -19,7 +19,7 @@ The `skills` CLI supports many agents, but this collection is maintained and tes
 | `software-security-baseline` | Reviews minimum practical security controls, then checks only changed and affected security surfaces on later branches or revisions. |
 | `api-validation-principle` | Establishes a full API baseline, then validates changed and affected operations with concise issue-focused reports. |
 | `clean-code-review` | Establishes a code-quality baseline, then reviews changed and affected features for maintainability and architecture issues. |
-| `langchain-agents` | Builds Python agents with LangChain v1: providers (OpenAI, Anthropic, DeepSeek, Ollama), tools, middleware, structured output with retries, short- and long-term memory, streaming, and token usage. |
+| `langchain-agents` | Builds Python agents with LangChain v1: providers (OpenAI, Anthropic, Google Gemini, OpenRouter, Fireworks, Baseten, DeepSeek, Ollama), tools, middleware, structured output with retries, short- and long-term memory, streaming, and token usage. |
 | `langgraph-workflows` | Builds complex Python workflows and multi-agent systems with LangGraph: state, nodes, routing, fan-out, subgraphs, human-in-the-loop, persistence, fault tolerance, and deployment layout. |
 | `langsmith-tracing` | Adds LangSmith tracing to LangChain, LangGraph, and custom code: projects, metadata, threads, custom spans, cost tracking, masking, sampling, and flushing. |
 

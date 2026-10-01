@@ -11,13 +11,17 @@ LangChain requires Python 3.10+. Install the core package plus one integration p
 | Anthropic (Claude) | `uv add langchain-anthropic` | `pip install -U langchain-anthropic` |
 | DeepSeek | `uv add langchain-deepseek` | `pip install -U langchain-deepseek` |
 | Ollama (local models) | `uv add langchain-ollama` | `pip install -U langchain-ollama` |
+| OpenRouter (one key, hundreds of models) | `uv add langchain-openrouter` | `pip install -U langchain-openrouter` |
+| Google Gemini | `uv add langchain-google-genai` | `pip install -U langchain-google-genai` |
+| Fireworks | `uv add langchain-fireworks` | `pip install -U langchain-fireworks` |
+| Baseten | `uv add langchain-baseten` | `pip install -U langchain-baseten` |
 | SQLite checkpointer/store | `uv add langgraph-checkpoint-sqlite` | `pip install -U langgraph-checkpoint-sqlite` |
 | PostgreSQL checkpointer/store | `uv add langgraph-checkpoint-postgres "psycopg[binary]"` | `pip install -U langgraph-checkpoint-postgres "psycopg[binary]"` |
 | LangSmith SDK (custom tracing, see `langsmith-tracing`) | `uv add langsmith` | `pip install -U langsmith` |
 
 `langchain` already depends on `langgraph` and `langchain-core`. The extras form `langchain[openai]` and `langchain[anthropic]` installs the core package plus that provider in one step. Pin compatible lower bounds in the project (for example `langchain>=1.4,<2`) rather than exact versions, unless the project already pins exact versions.
 
-For other providers (Google Gemini, AWS Bedrock, Azure, Mistral, Groq, OpenRouter, and more), look up the package and model string on `https://docs.langchain.com/oss/python/integrations/providers/overview.md`.
+For other providers (AWS Bedrock, Mistral, Groq, xAI, and more), look up the package and model string on `https://docs.langchain.com/oss/python/integrations/providers/overview.md`.
 
 ## Configure credentials
 
@@ -28,6 +32,13 @@ Load secrets from the environment or the project's settings object (for example 
 OPENAI_API_KEY=
 ANTHROPIC_API_KEY=
 DEEPSEEK_API_KEY=
+OPENROUTER_API_KEY=
+# Optional OpenRouter attribution and grouping
+OPENROUTER_APP_URL=
+OPENROUTER_APP_TITLE=
+GOOGLE_API_KEY=
+FIREWORKS_API_KEY=
+BASETEN_API_KEY=
 # Ollama runs locally; override only for a remote server
 OLLAMA_HOST=http://localhost:11434
 
@@ -44,7 +55,9 @@ from langchain.chat_models import init_chat_model
 
 model = init_chat_model(
     settings.llm_model,          # e.g. "openai:gpt-5.5", "anthropic:claude-sonnet-4-6",
-                                 # "deepseek:deepseek-chat", "ollama:gpt-oss:20b"
+                                 # "deepseek:deepseek-chat", "ollama:gpt-oss:20b",
+                                 # "openrouter:z-ai/glm-5.2", "google_genai:gemini-3.6-flash",
+                                 # "fireworks:accounts/fireworks/models/glm-5p2", "baseten:zai-org/GLM-5.2"
     timeout=60,                  # seconds
     max_retries=6,               # default 6; retries 429/5xx/network errors with backoff
     max_tokens=2048,
@@ -71,7 +84,7 @@ model = ChatOpenAI(
 ```
 
 - Env: `OPENAI_API_KEY`. Base URL resolution order: the `base_url` argument, then `OPENAI_API_BASE`, then `OPENAI_BASE_URL`.
-- Any OpenAI-compatible server (vLLM, Together, LiteLLM proxy) can be used with `init_chat_model(model, model_provider="openai", base_url=..., api_key=...)`. Prefer a dedicated integration when one exists (for example `langchain-openrouter`), because provider-specific fields may be dropped otherwise.
+- Any OpenAI-compatible server (vLLM, Together, LiteLLM proxy) can be used with `init_chat_model(model, model_provider="openai", base_url=..., api_key=...)`. Prefer a dedicated integration when one exists (for example `langchain-openrouter`, see [OpenRouter](#openrouter)), because provider-specific fields may be dropped otherwise.
 - `max_tokens` is converted to `max_completion_tokens` automatically.
 - Azure OpenAI uses `AzureChatOpenAI` / `init_chat_model("azure_openai:...", azure_deployment=...)` with `AZURE_OPENAI_API_KEY`, `AZURE_OPENAI_ENDPOINT`, and `OPENAI_API_VERSION`.
 
@@ -127,11 +140,68 @@ model = ChatOllama(
 - Raise `num_ctx` for agents with long histories or many tools. Otherwise the prompt is silently truncated.
 - Ollama's LangChain integration does not report token usage in the model features table. Do not rely on `usage_metadata` for cost accounting with Ollama.
 
+### OpenRouter
+
+OpenRouter is a gateway: one API key reaches models from many vendors (OpenAI, Anthropic, Google, Z.ai, DeepSeek, Meta, Qwen, and more). Model IDs are `vendor/model` slugs, so the `init_chat_model` / `create_agent` string is `openrouter:<vendor>/<model>`.
+
+```python
+from langchain.agents import create_agent
+
+agent = create_agent(model="openrouter:z-ai/glm-5.2", tools=[search])
+```
+
+Build `ChatOpenRouter` directly when you need routing, attribution, or reasoning settings:
+
+```python
+from langchain_openrouter import ChatOpenRouter
+
+model = ChatOpenRouter(
+    model="anthropic/claude-sonnet-4.5",   # slug from https://openrouter.ai/models
+    temperature=0,
+    max_tokens=1024,
+    max_retries=2,
+    app_url=settings.app_url,              # or OPENROUTER_APP_URL; app attribution header
+    app_title=settings.app_title,          # or OPENROUTER_APP_TITLE
+    openrouter_provider={                  # which upstream providers may serve the request
+        "order": ["Anthropic", "Google"],
+        "allow_fallbacks": True,           # default; False = only providers in "order"
+        "data_collection": "deny",         # skip providers that store or train on prompts
+        # "only": [...], "ignore": [...], "sort": "throughput" | "latency",
+        # "require_parameters": True, "quantizations": ["fp16", "bf16"],
+    },
+    # reasoning={"effort": "medium", "summary": "auto"},  # effort: xhigh|high|medium|low|minimal|none
+    # session_id="conv-123",               # or OPENROUTER_SESSION_ID; groups requests for OpenRouter broadcast
+)
+agent = create_agent(model=model, tools=[search])
+```
+
+- Package `langchain-openrouter`, class `ChatOpenRouter`, env `OPENROUTER_API_KEY`. The integration is marked beta; pin a lower bound and re-check the integration page when upgrading.
+- Use the dedicated integration rather than `ChatOpenAI` with an OpenRouter `base_url`. The OpenAI class drops OpenRouter-specific fields (provider routing, reasoning details, attribution) and reports the wrong provider in traces.
+- Capabilities depend on the routed model, not on OpenRouter. Before using a model in an agent, confirm on `https://openrouter.ai/models` that it supports tools (and structured outputs, images, or reasoning if you need them). Set `openrouter_provider={"require_parameters": True}` so requests are not routed to an upstream provider that silently ignores `tools` or `response_format`.
+- Tool calling uses the OpenAI format; `bind_tools(..., strict=True)` enforces the schema where the model supports it. Structured output: `with_structured_output(Schema, method="json_schema")` (default is `"function_calling"`), and `ProviderStrategy(Schema)` in an agent for models with native structured output, otherwise `ToolStrategy`.
+- Reasoning content appears as `content_blocks` entries of type `"reasoning"`; reasoning tokens appear in `usage_metadata["output_token_details"]["reasoning"]`.
+- Prompt caching requires explicit `{"cache_control": {"type": "ephemeral"}}` on a content block (for models that support it). Cache hits appear in `usage_metadata["input_token_details"]["cache_read"]` and writes in `cache_creation`.
+- `response_metadata["model_name"]` is the slug actually served, and `native_finish_reason` holds the upstream provider's raw finish reason.
+- Data governance: every request leaves through a third party. When the project has data-residency or no-training requirements, set `data_collection: "deny"` and restrict providers with `only`, and say so in the report.
+- Two fallback layers exist: OpenRouter's `openrouter_provider`/`route="fallback"` fails over between upstream providers of the same model, and `ModelFallbackMiddleware` fails over to a different model. Use both deliberately, not by accident.
+
+### Google Gemini, Fireworks, Baseten
+
+These follow the same pattern: install the package, set the key, and use the `provider:model` string or the class.
+
+| Provider | String prefix | Class | Env |
+| --- | --- | --- | --- |
+| Google Gemini (AI Studio) | `google_genai:` (e.g. `google_genai:gemini-3.6-flash`) | `langchain_google_genai.ChatGoogleGenerativeAI` | `GOOGLE_API_KEY` (falls back to `GEMINI_API_KEY`); set `GOOGLE_GENAI_USE_VERTEXAI` for Vertex AI |
+| Fireworks | `fireworks:` (e.g. `fireworks:accounts/fireworks/models/glm-5p2`) | `langchain_fireworks.ChatFireworks` | `FIREWORKS_API_KEY` |
+| Baseten | `baseten:` (e.g. `baseten:zai-org/GLM-5.2`) | `langchain_baseten.ChatBaseten` | `BASETEN_API_KEY` |
+
+Read `https://docs.langchain.com/oss/python/integrations/chat/<google_generative_ai|fireworks|baseten>.md` for provider-specific parameters, and confirm tool-calling support for the exact open-weight model before using it in an agent.
+
 ## Switching and combining providers
 
 - Keep provider choice in configuration: `init_chat_model(settings.llm_model)`.
 - For runtime switching, use a configurable model: `init_chat_model(configurable_fields=("model", "model_provider", "temperature"))`, then pass `config={"configurable": {"model": "anthropic:claude-sonnet-4-6"}}`. Inside agents, prefer the dynamic-model middleware pattern (`@wrap_model_call` plus `request.override(model=...)`).
-- For resilience across providers, add `ModelFallbackMiddleware("anthropic:claude-sonnet-4-6", "openai:gpt-5.4-mini")` to the agent.
+- For resilience across providers, add `ModelFallbackMiddleware("anthropic:claude-sonnet-4-6", "openai:gpt-5.4-mini")` to the agent. Fallback models can be OpenRouter strings too, for example `"openrouter:z-ai/glm-5.2"`.
 - Inspect capabilities through `model.profile` (for example `max_input_tokens`, `tool_calling`, `structured_output`). When the profile data is missing or wrong, pass a `profile={...}` override, because summarization triggers and structured-output strategy selection rely on it.
 
 ## Standard errors
