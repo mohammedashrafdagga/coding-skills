@@ -1,9 +1,9 @@
 ---
 name: langchain-agents
-description: Build, extend, or fix Python AI agents with LangChain v1 (`create_agent`), including installation, OpenAI/Anthropic/DeepSeek/Ollama providers, tools, middleware, structured JSON output with validation retries, short-term and long-term memory (in-memory, SQLite, PostgreSQL), streaming, and token usage. Use when adding an LLM agent or chat feature to a Python project, switching model providers, or debugging LangChain agent behavior; use langgraph-workflows for custom multi-step graphs and langsmith-tracing for observability.
+description: Build, extend, or fix Python AI agents with LangChain v1 (`create_agent`), including installation, OpenAI/Anthropic/Google Gemini/OpenRouter/Fireworks/Baseten/DeepSeek/Ollama providers, tools, middleware, structured JSON output with validation retries, short-term and long-term memory (in-memory, SQLite, PostgreSQL), streaming, and token usage. Use when adding an LLM agent or chat feature to a Python project, switching model providers, or debugging LangChain agent behavior; use langgraph-workflows for custom multi-step graphs and langsmith-tracing for observability.
 metadata:
   author: "mohammedashrafdagga"
-  version: "1.0.0"
+  version: "1.1.0"
   supported-agents: "codex,claude-code,cursor"
   library-versions: "langchain>=1.4,langchain-core>=1.6,langgraph>=1.2"
 ---
@@ -22,8 +22,8 @@ Build production-quality agents with LangChain v1 in Python. `create_agent` is t
 ## Workflow
 
 1. **Inspect the project first.** Find the Python version (LangChain requires 3.10+), the dependency manager (`pyproject.toml` with uv or Poetry, or `requirements.txt`), existing LangChain/LangGraph packages and their versions, how settings and secrets are loaded, and whether the app is sync or async (for example FastAPI). Match what exists. Do not add a second configuration system.
-2. **Install packages** with the project's tool. Read [references/setup-and-providers.md](references/setup-and-providers.md) for package names, the extras for each provider, environment variables, and provider-specific pitfalls. Install only the providers the user needs.
-3. **Configure the model** from settings or environment variables, never from hard-coded keys. Keep the model identifier in configuration (for example `LLM_MODEL=openai:gpt-5.5`) so the provider can be switched without changing code. Check the provider's current model list before pinning a model name; model IDs change often.
+2. **Install packages** with the project's tool. Read [references/setup-and-providers.md](references/setup-and-providers.md) for package names, the extras for each provider, environment variables, and provider-specific pitfalls. Install only the providers the user needs. When the user wants one key for many vendors' models, or per-request routing across upstream providers, use OpenRouter through `langchain-openrouter`, not `ChatOpenAI` with a custom `base_url`.
+3. **Configure the model** from settings or environment variables, never from hard-coded keys. Keep the model identifier in configuration (for example `LLM_MODEL=openai:gpt-5.5` or `LLM_MODEL=openrouter:z-ai/glm-5.2`) so the provider can be switched without changing code. Check the provider's current model list before pinning a model name; model IDs change often.
 4. **Build the agent.** Read [references/agents-tools-middleware.md](references/agents-tools-middleware.md) for `create_agent`, tool design, `ToolRuntime`, runtime `context`, built-in middleware (retry, fallback, limits, summarization, PII, human-in-the-loop), and custom middleware hooks.
 5. **Add structured output** when callers need typed or JSON data. Read [references/structured-output.md](references/structured-output.md). Prefer a Pydantic schema. Use `ToolStrategy(..., handle_errors=...)` to control validation retries.
 6. **Add memory** when conversations must continue across calls or facts must persist across sessions. Read [references/memory.md](references/memory.md) to choose between short-term memory (checkpointer + `thread_id`) and long-term memory (store + namespaces), and to choose a backend: in-memory for tests, SQLite for local and single-process use, PostgreSQL for production.
@@ -44,7 +44,7 @@ Build production-quality agents with LangChain v1 in Python. `create_agent` is t
 
 ## Look up current documentation
 
-The APIs above were verified against `langchain` 1.4, `langchain-core` 1.6, and `langgraph` 1.2. When the installed version differs, or a feature is not covered here, read the official Markdown docs rather than guessing. The page index is at `https://docs.langchain.com/llms.txt`, and each page is available as `.md`, for example `https://docs.langchain.com/oss/python/langchain/agents.md`, `.../models.md`, `.../structured-output.md`, `.../short-term-memory.md`, `.../long-term-memory.md`, `.../streaming.md`, `.../middleware/built-in.md`, and `https://docs.langchain.com/oss/python/integrations/chat/<provider>.md`.
+The APIs above were verified against `langchain` 1.4, `langchain-core` 1.6, and `langgraph` 1.2. When the installed version differs, or a feature is not covered here, read the official Markdown docs rather than guessing. The page index is at `https://docs.langchain.com/llms.txt`, and each page is available as `.md`, for example `https://docs.langchain.com/oss/python/langchain/agents.md`, `.../models.md`, `.../structured-output.md`, `.../short-term-memory.md`, `.../long-term-memory.md`, `.../streaming.md`, `.../middleware/built-in.md`, and `https://docs.langchain.com/oss/python/integrations/chat/<provider>.md` (for example `.../chat/openrouter.md`).
 
 ## Finish
 

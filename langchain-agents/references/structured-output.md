@@ -76,8 +76,8 @@ triage: TicketTriage = result["structured_response"]
 
 Passing the schema type lets LangChain choose the strategy from the model profile:
 
-- `ProviderStrategy(schema, strict=None)`: the provider's native structured output (OpenAI, Anthropic, xAI, Gemini). This is the most reliable option when it is supported, and it requires the model to support tools and structured output together. `strict=True` enables strict schema adherence where supported (`langchain>=1.2`).
-- `ToolStrategy(schema, tool_message_content=None, handle_errors=True)`: structured output through an artificial tool call. It works with any tool-calling model (DeepSeek, Ollama, others) and supports `Union[A, B]` schemas, where the model picks one.
+- `ProviderStrategy(schema, strict=None)`: the provider's native structured output (OpenAI, Anthropic, xAI, Gemini, and OpenRouter models that support it). This is the most reliable option when it is supported, and it requires the model to support tools and structured output together. `strict=True` enables strict schema adherence where supported (`langchain>=1.2`).
+- `ToolStrategy(schema, tool_message_content=None, handle_errors=True)`: structured output through an artificial tool call. It works with any tool-calling model (DeepSeek, Ollama, OpenRouter open-weight models, others) and supports `Union[A, B]` schemas, where the model picks one.
 
 When the model profile is missing or wrong, force the strategy explicitly or pass `init_chat_model(..., profile={"structured_output": True})`.
 
